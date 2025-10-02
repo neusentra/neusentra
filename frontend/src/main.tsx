@@ -1,11 +1,12 @@
+import { AuthProvider, PreloaderProvider, ThemeProvider } from './providers'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from "react-router";
-import { AuthProvider, PreloaderProvider, ThemeProvider } from './providers'
-import { StrictMode } from 'react';
 import { THEME_KEY } from './constants';
-import App from './App';
+import { StrictMode } from 'react';
 import '@/assets/styles/index.css';
 import '@/assets/styles/fonts.css';
+import { Toaster } from 'sonner'
+import App from './App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
         <ThemeProvider storageKey={THEME_KEY}>
           <AuthProvider>
             <App />
+            <Toaster position="bottom-right" richColors />
           </AuthProvider>
         </ThemeProvider>
       </PreloaderProvider>
