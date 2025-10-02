@@ -36,9 +36,7 @@ export const LoginPage: React.FC = () => {
     const response = await httpService<any>(
       API_METHODS.POST,
       ENDPOINTS.login,
-      data,
-      undefined,
-      undefined
+      data
     );
     console.log("response -->", response);
     const token = response.data.token;
