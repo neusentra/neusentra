@@ -187,15 +187,15 @@ const UserMenu = ({
 );
 
 // Types
-export interface Navbar05NavItem {
+export interface NavbarNavItem {
   href?: string;
   label: string;
 }
 
-export interface Navbar05Props extends HTMLAttributes<HTMLElement> {
+export interface NavbarProps extends HTMLAttributes<HTMLElement> {
   logo?: ReactNode;
   logoHref?: string;
-  navigationLinks?: Navbar05NavItem[];
+  navigationLinks?: NavbarNavItem[];
   userName?: string;
   userEmail?: string;
   userAvatar?: string;
@@ -206,15 +206,14 @@ export interface Navbar05Props extends HTMLAttributes<HTMLElement> {
   onUserItemClick?: (item: string) => void;
 }
 
-// Default navigation links
-const defaultNavigationLinks: Navbar05NavItem[] = [
+const defaultNavigationLinks: NavbarNavItem[] = [
   { href: '#', label: 'Home' },
   { href: '#', label: 'Features' },
   { href: '#', label: 'Pricing' },
   { href: '#', label: 'About' },
 ];
 
-export const Navbar = forwardRef<HTMLElement, Navbar05Props>(
+export const Navbar = forwardRef<HTMLElement, NavbarProps>(
   (
     {
       className,
