@@ -74,14 +74,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 const response = await httpService<InitializeStatusApiResponse>(
                     API_METHODS.GET,
                     ENDPOINTS.initializeStatus,
-                    undefined,
-                    undefined
                 );
 
-                console.log(response); // Remove this and add functionality
-
-                // const { initialized } = response.data;
-                const initialized = true // Change this. Dummy for now
+                const { initialized } = response.data.data;
                 setIsInitialized(initialized);
 
                 if (initialized) {
