@@ -1,0 +1,1 @@
+export {InitializePage} from './InitializePage';
