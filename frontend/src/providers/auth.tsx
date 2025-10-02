@@ -3,6 +3,7 @@ import type { InitializeStatusApiResponse } from "@/types/api/initialize.type";
 import type { ILoginResponse, IUserData } from "@/types/common.type";
 import { axiosInstance, httpService } from "@/services";
 import { API_METHODS } from "@/enums/common.enum";
+import { AUTH_KEY, ENDPOINTS } from "@/constants";
 import { usePreloader } from "./preloader";
 import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
@@ -20,9 +21,6 @@ interface IAuthContext {
 
 type AuthProviderProps = {
     children: React.ReactNode;
-    API_URL: string;
-    LOGOUT_URL: string;
-    AUTH_KEY: string;
 }
 
 const AuthContext = createContext<IAuthContext>({
@@ -36,7 +34,7 @@ const AuthContext = createContext<IAuthContext>({
     logout: async () => { },
 });
 
-export function AuthProvider({ children, API_URL, LOGOUT_URL, AUTH_KEY }: AuthProviderProps) {
+export function AuthProvider({ children }: AuthProviderProps) {
     const [userData, setUserData] = useState<IUserData | null>(null);
     const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -67,7 +65,7 @@ export function AuthProvider({ children, API_URL, LOGOUT_URL, AUTH_KEY }: AuthPr
         delete axiosInstance.defaults.headers.common['Authorization'];
         setUserData(null);
         setIsAuthenticated(false);
-    }, [AUTH_KEY]);
+    }, [setUserData, setIsAuthenticated]);
 
     useEffect(() => {
         const checkInitialization = async () => {
@@ -75,7 +73,7 @@ export function AuthProvider({ children, API_URL, LOGOUT_URL, AUTH_KEY }: AuthPr
             try {
                 const response = await httpService<InitializeStatusApiResponse>(
                     API_METHODS.GET,
-                    API_URL,
+                    ENDPOINTS.initializeStatus,
                     undefined,
                     undefined
                 );
@@ -113,7 +111,7 @@ export function AuthProvider({ children, API_URL, LOGOUT_URL, AUTH_KEY }: AuthPr
         };
 
         checkInitialization();
-    }, [validateToken, clearAuth, API_URL, AUTH_KEY, setPreloader]);
+    }, [validateToken, clearAuth, setPreloader]);
 
     const setUserDataFromToken = useCallback((token: string, skipLocalStorage = false) => {
         try {
@@ -137,13 +135,13 @@ export function AuthProvider({ children, API_URL, LOGOUT_URL, AUTH_KEY }: AuthPr
             clearAuth();
             navigate('/login');
         }
-    }, [navigate, validateToken, clearAuth, AUTH_KEY]);
+    }, [navigate, validateToken, clearAuth]);
 
     const logout = useCallback(async () => {
         try {
             await httpService<InitializeStatusApiResponse>(
                 API_METHODS.POST,
-                LOGOUT_URL,
+                ENDPOINTS.logout,
                 undefined,
                 undefined
             );
@@ -153,7 +151,7 @@ export function AuthProvider({ children, API_URL, LOGOUT_URL, AUTH_KEY }: AuthPr
             clearAuth();
             navigate('/login');
         }
-    }, [navigate, clearAuth, LOGOUT_URL]);
+    }, [navigate, clearAuth]);
 
 
     const value = useMemo(() => ({
