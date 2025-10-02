@@ -7,15 +7,16 @@ const AppRouter: React.FC = () => {
         <Routes>
             {/* With Navbar and Footer */}
             <Route element={<CommonLayout />}>
-                <Route index element={<InitializePage isLoading={true} />} />
             </Route>
 
-            {/* No Navbar or Footer */}
-            <Route index path="/login" element={<LoginPage />} />
-            <Route index path="/test" element={<TestPage />} />
+            <Route index path='/initialize' element={<InitializePage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-            {/* Redirect all unknown routes to home */}
-            <Route path="*" element={<Navigate to="/" />} />
+            {/* No Navbar or Footer */}
+            <Route path="/test" element={<TestPage />} />
+
+            {/* Redirect root to initialize */}
+            <Route path="/" element={<Navigate to="/initialize" replace />} />
         </Routes>
     )
 }
