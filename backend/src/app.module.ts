@@ -7,6 +7,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { EventsModule } from './events/events.module';
 import { CommonModule } from './common/common.module';
+import { JwtTokenModule } from './jwt-token/jwt-token.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CommonModule } from './common/common.module';
     }),
     ApiModule,
     EventsModule,
+    JwtTokenModule,
     CommonModule
   ],
   providers: [{ provide: APP_FILTER, useClass: HttpExceptionFilter }],
