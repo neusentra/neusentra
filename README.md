@@ -102,14 +102,6 @@ NeuSentra/
 
 ---
 
-## 🚀 Getting Started & Support
-
-- [Project Frontend](https://github.com/neusentra/neusentra/frontend)
-- [Project Backend](https://github.com/neusentra/neusentra/backend)
-- [![Join us on Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/3VxzAfW7s6)
-
----
-
 ## ⚖ License
 
 NeuSentra is open-source and MIT licensed. See [LICENSE](LICENSE) file for terms.  
@@ -118,6 +110,7 @@ NeuSentra is open-source and MIT licensed. See [LICENSE](LICENSE) file for terms
 
 ## ❤️ Stay Connected
 
-- Author: Your Name / Organization  
-- Website: [https://yourwebsite.com](https://yourwebsite.com)  
-- Twitter: [@yourhandle](https://twitter.com/yourhandle)  
+- Author: NeuSentra  
+- Website: [coming soon]  
+- X: [coming soon]
+- [![Join us on Discord](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/3VxzAfW7s6)
