@@ -14,6 +14,11 @@ export default Joi.object({
     .default(K.LOGGER_LEVELS[0]),
   PRETTY_PRINT_LOG: Joi.boolean().default('false'),
 
+  // Swagger
+  SWAGGER_ENABLED: Joi.string()
+    .valid('true', 'false')
+    .default('false'),
+
   // Pg / DB
   DB_HOST: Joi.string().required(),
   DB_PORT: Joi.number().default(K.DATABASE_DEFAULT_PORT),
@@ -26,4 +31,10 @@ export default Joi.object({
   REDIS_PORT: Joi.number().default(K.REDIS_DEFAULT_PORT),
   REDIS_PASS: Joi.string().allow(''),
   REDIS_TTL: Joi.number().default(K.REDIS_DEFAULT_TTL),
+
+  // JWT
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRES_IN: Joi.string().required(),
+  JWT_REFRESH_SECRET: Joi.string().required(),
+  JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
 });
