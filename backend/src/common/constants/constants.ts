@@ -23,3 +23,7 @@ export const CONTENT_TYPE = {
 export const MAX_INT_LIMIT = 2147483647;
 
 export const PUBLIC_METADATA = 'isPublic';
+
+export const REDIS_DEFAULT_PORT = 6379;
+
+export const REDIS_DEFAULT_TTL = 3600000;
