@@ -18,10 +18,4 @@ export default registerAs('config', () => ({
     pass: env.DB_PASS,
     db: env.DB_NAME,
   },
-  redis: {
-    host: env.REDIS_HOST,
-    port: env.REDIS_PORT,
-    pass: env.REDIS_PASS,
-    ttl: env.REDIS_TTL,
-  },
 }));
