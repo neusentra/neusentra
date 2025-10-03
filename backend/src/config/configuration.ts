@@ -24,4 +24,10 @@ export default registerAs('config', () => ({
     pass: env.REDIS_PASS,
     ttl: env.REDIS_TTL,
   },
+  jwt: {
+    secret: env.JWT_SECRET,
+    expiry: env.JWT_EXPIRES_IN,
+    refreshSecret: env.JWT_REFRESH_SECRET,
+    refreshExpiry: env.JWT_REFRESH_EXPIRES_IN,
+  },
 }));
