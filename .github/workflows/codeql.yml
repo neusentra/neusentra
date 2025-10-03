@@ -70,7 +70,6 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ needs.detect.outputs.languages }}
-          queries: default
 
       # If JavaScript/TypeScript are present, set up Node and build frontend/backend if present.
       - name: Setup Node (for JS/TS) and build projects
