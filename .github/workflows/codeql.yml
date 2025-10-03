@@ -1,0 +1,142 @@
+name: "CodeQL Advanced"
+
+on:
+  push:
+    branches: [ "*" ]
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**/*.md'
+  schedule:
+    - cron: '30 18 * * 0'
+
+permissions:
+  security-events: write
+  packages: read
+  actions: read
+  contents: read
+
+jobs:
+  # Detect which supported languages actually exist in the repo.
+  detect:
+    name: Detect languages
+    runs-on: ubuntu-latest
+    outputs:
+      languages: ${{ steps.detect.outputs.languages }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - id: detect
+        name: Detect repository languages
+        run: |
+          set -euo pipefail
+          langs=""
+
+          # Detect JS/TS in frontend/ or backend/ (or package.json present)
+          if git ls-files | grep -E '^frontend/.*\.(js|jsx|ts|tsx)$' -q \
+            || git ls-files | grep -E '^backend/.*\.(js|jsx|ts|tsx)$' -q \
+            || [ -f frontend/package.json ] || [ -f backend/package.json ]; then
+            langs="javascript-typescript"
+          fi
+
+          # Detect Python scripts (scripts/ or anywhere)
+          if git ls-files | grep -E '^scripts/.*\.py$' -q || git ls-files | grep -E '\.py$' -q; then
+            if [ -z "$langs" ]; then
+              langs="python"
+            else
+              langs="${langs},python"
+            fi
+          fi
+
+          # If no supported languages were detected, leave empty (analyze job will be skipped)
+          echo "Detected languages: ${langs}" >&2
+          echo "languages=${langs}" >> $GITHUB_OUTPUT
+
+  analyze:
+    name: CodeQL Analyze (conditional)
+    needs: detect
+    runs-on: ubuntu-latest
+    # Skip the analyze job if no languages were detected
+    if: ${{ needs.detect.outputs.languages != '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Initialize CodeQL for the detected languages
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ needs.detect.outputs.languages }}
+          queries: default
+
+      # If JavaScript/TypeScript are present, set up Node and build frontend/backend if present.
+      - name: Setup Node (for JS/TS) and build projects
+        if: contains(needs.detect.outputs.languages, 'javascript-typescript')
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+
+      - name: Install & build JS/TS projects (frontend/backend)
+        if: contains(needs.detect.outputs.languages, 'javascript-typescript')
+        run: |
+          set -euo pipefail
+
+          if [ -f frontend/package.json ]; then
+            echo "Installing frontend dependencies..."
+            cd frontend
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+            echo "Building frontend (if build script exists)..."
+            npm run build --if-present || true
+            cd -
+          else
+            echo "No frontend/package.json found; skipping frontend build."
+          fi
+
+          if [ -f backend/package.json ]; then
+            echo "Installing backend dependencies..."
+            cd backend
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+            echo "Building backend (if build script exists)..."
+            npm run build --if-present || true
+            cd -
+          else
+            echo "No backend/package.json found; skipping backend build."
+          fi
+
+      # If Python is present, set up Python. Install requirements if a requirements file is found.
+      - name: Setup Python (if present)
+        if: contains(needs.detect.outputs.languages, 'python')
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python requirements (if any)
+        if: contains(needs.detect.outputs.languages, 'python')
+        run: |
+          set -euo pipefail
+          # Common places for requirements; adjust if you keep them elsewhere
+          REQ_FILES=$(git ls-files | grep -E '(^|/)requirements(\.txt)?$' || true)
+          if [ -n "$REQ_FILES" ]; then
+            for f in $REQ_FILES; do
+              echo "Installing $f"
+              python -m pip install --upgrade pip
+              python -m pip install -r "$f"
+            done
+          else
+            echo "No requirements.txt found; skipping pip install."
+          fi
+
+      # Perform the CodeQL analysis (this will use the languages initialized above)
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
