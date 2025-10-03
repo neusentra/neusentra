@@ -46,7 +46,7 @@ export class SseEmitterService implements OnModuleDestroy {
   /**
    * Emits a server-sent event to all clients of a specific role.
    *
-   * @param role - The target role (e.g., 'admin', 'auditor')
+   * @param role - The target role (e.g., 'superadmin', 'admin', 'user')
    * @param event - The event name
    * @param data - Payload
    */
