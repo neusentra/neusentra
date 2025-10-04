@@ -15,7 +15,7 @@ export class AuditLogService {
   async logAction(entry: AuditLogEntry): Promise<void> {
     try {
       await this.db.rawQuery(
-        `INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details) VALUES ($1, $2, $3, $4, $5)`,
+        `INSERT INTO neusentra.audit_logs (user_id, action, entity_type, entity_id, details) VALUES ($1, $2, $3, $4, $5)`,
         [
           entry.userId,
           entry.action,
