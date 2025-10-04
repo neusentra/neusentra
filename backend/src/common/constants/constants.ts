@@ -27,3 +27,6 @@ export const PUBLIC_METADATA = 'isPublic';
 export const REDIS_DEFAULT_PORT = 6379;
 
 export const REDIS_DEFAULT_TTL = 3600000;
+
+export const JWT_ALGORITHM = 'HS512';
+export const JWT_STRATEGY = { DEFAULT: 'jwt', REFRESH: 'jwt-refresh' };
