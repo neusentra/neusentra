@@ -19,8 +19,8 @@ export class JwtTokenService {
 
   /**
    * Method to generate an access token and a refresh token.
-   * @param {string} loginId Member ID of the user.
-   * @param {string} userId Member ID of the user.
+   * @param {string} loginId Login ID of the user.
+   * @param {string} userId User ID of the user.
    * @param {string} name of the user.
    * @param {string} role of the user.
    * @returns {Promise<TokenDto>} Access token and refresh token.
@@ -32,7 +32,6 @@ export class JwtTokenService {
     role,
   }: TokenPayload): Promise<TokenDto> {
     try {
-      this.logger.log('JWT expiry:', this.config.jwt.expiry);
       const [accessToken, refreshToken] = await Promise.all([
         this.jwtService.signAsync({
           loginId,
