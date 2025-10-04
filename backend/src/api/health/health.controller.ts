@@ -11,6 +11,11 @@ export class HealthController {
     @ApiOperation({ summary: 'Get health of the server' })
     @ApiResponse({ type: SuccessResponseDto, status: HttpStatus.OK })
     getStatus(): SuccessResponseDto {
-        return {};
+        return {
+            success: true,
+            statusCode: HttpStatus.OK,
+            message: 'Server is healthy',
+            data: {},
+        };
     }
 }
