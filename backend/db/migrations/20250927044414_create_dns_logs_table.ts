@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
             source VARCHAR(50) NULL,
             timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
             CONSTRAINT dns_logs_pkey PRIMARY KEY (id, timestamp),
-            CONSTRAINT dns_logs_device_id_foreign FOREIGN KEY (device_id) REFERENCES public.devices(id) ON DELETE CASCADE
+            CONSTRAINT dns_logs_device_id_foreign FOREIGN KEY (device_id) REFERENCES neusentra.devices(id) ON DELETE CASCADE
         ) PARTITION BY RANGE (timestamp);
 
         CREATE INDEX idx_dns_logs_timestamp ON neusentra.dns_logs(timestamp);

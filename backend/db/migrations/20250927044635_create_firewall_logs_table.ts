@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
             protocol VARCHAR(10) NOT NULL,
             timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NULL,
             CONSTRAINT firewall_logs_pkey PRIMARY KEY (id, timestamp),
-            CONSTRAINT firewall_logs_device_id_foreign FOREIGN KEY (device_id) REFERENCES public.devices(id) ON DELETE CASCADE
+            CONSTRAINT firewall_logs_device_id_foreign FOREIGN KEY (device_id) REFERENCES neusentra.devices(id) ON DELETE CASCADE
         ) PARTITION BY RANGE (timestamp);
 
         CREATE INDEX idx_firewall_logs_timestamp ON neusentra.firewall_logs(timestamp);

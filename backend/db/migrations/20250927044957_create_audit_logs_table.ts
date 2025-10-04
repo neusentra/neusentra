@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
             details jsonb NULL,
             timestamp timestamptz DEFAULT CURRENT_TIMESTAMP NULL,
             CONSTRAINT audit_logs_pkey PRIMARY KEY (id, timestamp),
-            CONSTRAINT audit_logs_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id)
+            CONSTRAINT audit_logs_user_id_foreign FOREIGN KEY (user_id) REFERENCES neusentra.users(id)
         ) PARTITION BY RANGE (timestamp);
 
         CREATE INDEX idx_audit_logs_timestamp ON neusentra.audit_logs(timestamp);

@@ -3,7 +3,7 @@ import { seed } from '../seeds/role_permissions_table';
 
 export async function up(knex: Knex): Promise<void> {
     await knex.schema.withSchema('neusentra').createTable("role_permissions", (table: any) => {
-        table.uuid("role_id").primary().references("id").inTable("roles").onDelete("CASCADE");
+        table.uuid("role_id").primary().references("id").inTable("neusentra.roles").onDelete("CASCADE");
         table.boolean("can_manage_devices").defaultTo(false);
         table.boolean("can_manage_policies").defaultTo(false);
         table.boolean("can_view_logs").defaultTo(false);

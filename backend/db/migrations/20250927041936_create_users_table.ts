@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 
 export async function up(knex: Knex): Promise<void> {
-    const userRole = await knex("roles").where({ name: "user" }).first("id");
+    const userRole = await knex("neusentra.roles").where({ name: "user" }).first("id");
 
     await knex.schema.withSchema('neusentra').createTable("users", (table: any) => {
         table.uuid("id").primary().defaultTo(knex.raw("gen_random_uuid()"));
@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid("role_id")
             .notNullable()
             .references("id")
-            .inTable("roles")
+            .inTable("neusentra.roles")
             .onDelete("CASCADE")
             .defaultTo(userRole?.id);
         table.boolean("is_active").defaultTo(true);
