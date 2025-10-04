@@ -1,0 +1,94 @@
+$uib-size: 40px;
+$uib-color: #dddddd;
+$uib-speed: 1.5s;
+$dot-size: calc($uib-size * 0.17);
+
+.preloader-container {
+    background-color: rgba(0, 0, 0, 0.99);
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    z-index: 9999;
+}
+
+.preloader {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: $uib-size;
+    width: $uib-size;
+    animation: smoothRotate calc($uib-speed * 1.8) linear infinite;
+
+    .dot {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+        animation: rotate $uib-speed ease-in-out infinite;
+
+        &::before {
+            content: '';
+            height: $dot-size;
+            width: $dot-size;
+            border-radius: 50%;
+            background-color: $uib-color;
+            transition: background-color 0.3s ease;
+        }
+
+        &:nth-child(2),
+        &:nth-child(2)::before {
+            animation-delay: calc($uib-speed * -0.835 * 0.5);
+        }
+
+        &:nth-child(3),
+        &:nth-child(3)::before {
+            animation-delay: calc($uib-speed * -0.668 * 0.5);
+        }
+
+        &:nth-child(4),
+        &:nth-child(4)::before {
+            animation-delay: calc($uib-speed * -0.501 * 0.5);
+        }
+
+        &:nth-child(5),
+        &:nth-child(5)::before {
+            animation-delay: calc($uib-speed * -0.334 * 0.5);
+        }
+
+        &:nth-child(6),
+        &:nth-child(6)::before {
+            animation-delay: calc($uib-speed * -0.167 * 0.5);
+        }
+    }
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    65%,
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes smoothRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
