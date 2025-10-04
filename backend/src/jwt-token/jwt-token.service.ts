@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import configuration from 'src/config/configuration';
 import { CustomLogger } from 'src/logger/custom-logger.service';
@@ -19,8 +19,10 @@ export class JwtTokenService {
 
   /**
    * Method to generate an access token and a refresh token.
-   * @param {number} userId Member ID of the user.
-   * @param {string} userName of the user.
+   * @param {string} loginId Member ID of the user.
+   * @param {string} userId Member ID of the user.
+   * @param {string} name of the user.
+   * @param {string} role of the user.
    * @returns {Promise<TokenDto>} Access token and refresh token.
    */
   async generateTokens({
@@ -51,10 +53,6 @@ export class JwtTokenService {
           },
         ),
       ]);
-
-      this.logger.log('Access token:', accessToken);
-      const decoded = this.jwtService.decode(accessToken);
-      this.logger.log('Decoded token:', decoded);
 
       return { accessToken, refreshToken };
     } catch (err) {

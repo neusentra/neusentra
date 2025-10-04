@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import type { ConfigType } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import configuration from 'src/config/configuration';
 import { CustomLogger } from 'src/logger/custom-logger.service';

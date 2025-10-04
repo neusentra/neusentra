@@ -6,5 +6,5 @@ export interface TokenPayload {
 }
 
 export interface RefreshTokenPayload extends TokenPayload {
-  refresh_token: string;
+  refreshToken: string;
 }

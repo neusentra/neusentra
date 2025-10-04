@@ -22,13 +22,13 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(req: any, payload: TokenPayload): RefreshTokenPayload {
-    const refresh_token = req?.headers?.authorization
+    const refreshToken = req?.headers?.authorization
       ?.replace('Bearer', '')
       .trim();
-    if (!refresh_token) {
+    if (!refreshToken) {
       throw new UnauthorizedException(K.ERROR_CODES.INVALID_REFRESH_TOKEN);
     }
 
-    return { ...payload, refresh_token };
+    return { ...payload, refreshToken };
   }
 }
