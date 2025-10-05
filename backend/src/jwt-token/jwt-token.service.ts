@@ -59,4 +59,14 @@ export class JwtTokenService {
       throw err;
     }
   }
+
+  /**
+   * Method to verify the token.
+   * @param {string} token Token to verify.
+   * @param {string} secret secret used to sign the token
+   * @returns {Promise<TokenDto>} Access token and refresh token.
+   */
+  async verifyToken(token: string, secret: string) {
+    return this.jwtService.verifyAsync(token, { secret });
+  }
 }
