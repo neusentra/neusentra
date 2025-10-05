@@ -5,7 +5,6 @@
 import * as crypto from 'crypto';
 import { Injectable } from '@nestjs/common';
 import * as K from 'src/common/constants';
-import { readFileSync } from 'fs';
 
 @Injectable()
 export class UtilsService {
