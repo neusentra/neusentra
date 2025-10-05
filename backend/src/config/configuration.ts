@@ -30,4 +30,7 @@ export default registerAs('config', () => ({
     refreshSecret: env.JWT_REFRESH_SECRET,
     refreshExpiry: env.JWT_REFRESH_EXPIRES_IN,
   },
+  cookie: {
+    secret: env.COOKIE_SECRET,
+  },
 }));
