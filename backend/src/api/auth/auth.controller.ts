@@ -13,14 +13,12 @@ import { AuthService } from './auth.service';
 import { NeuSentraValidationPipe } from 'src/pipes/neusentra-validation.pipe';
 import { CheckInitializationStatusResponse } from './dto/check-initialization.dto';
 import {
-  InitializeSuperAdminDto,
-  InitializeSuperAdminResponseDto,
-} from './dto/initialize-superadmin.dto';
-import {
   LoginRequestDto,
   LoginResponseDto,
   RefreshTokenResponseDto,
-} from './dto/auth.dto';
+  InitializeSuperAdminDto,
+  InitializeSuperAdminResponseDto,
+} from './dto';
 import { GetLoginId } from 'src/decorators/get-token-data.decorator';
 import { NeuSentraAuthGuard } from 'src/guards/auth.guard';
 import { type FastifyReply } from 'fastify';
@@ -87,7 +85,7 @@ export class AuthController {
     await this.authService.refreshAccessToken(token, reply);
   }
 
-  @Post('logout')
+  @Get('logout')
   @UseGuards(NeuSentraAuthGuard)
   @UsePipes(new NeuSentraValidationPipe({ transform: true, whitelist: true }))
   @ApiOperation({ summary: 'User logout' })
