@@ -54,3 +54,12 @@ export class LoginResponseDto extends SuccessResponseDto {
     @ApiProperty({ type: () => LoginDataDto })
     declare data: LoginDataDto;
 }
+
+class AccessTokenDto {
+    accessToken: string;
+}
+
+export class RefreshTokenResponseDto extends SuccessResponseDto {
+    @ApiProperty({ type: () => AccessTokenDto })
+    declare data: AccessTokenDto;
+}
