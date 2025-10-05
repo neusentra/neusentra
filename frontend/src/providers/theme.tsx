@@ -1,5 +1,6 @@
-import { DEFAULT_THEME, THEME_KEY } from "@/constants";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { DEFAULT_THEME, THEME_KEY } from "@/constants";
+import { Toaster } from "sonner";
 
 type Theme = "dark" | "light" | "system"
 
@@ -60,6 +61,7 @@ export function ThemeProvider({
     return (
         <ThemeProviderContext.Provider {...props} value={value}>
             {children}
+            <Toaster theme={theme} position="bottom-right" richColors />
         </ThemeProviderContext.Provider>
     )
 }

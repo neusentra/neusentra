@@ -18,6 +18,7 @@ import { usePreloader } from "./preloader";
 import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
 import type { InitializeData } from "@/types/api/initialize.type";
+import { toast } from "sonner";
 
 interface IAuthContext {
   userData: IUserData | null;
@@ -89,7 +90,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           ENDPOINTS.AUTH.CHECK_INITIALIZATION
         );
 
-        if (!success) throw new Error('Initialization check failed');
+        if (!success) {
+          toast.error('Initialization check failed')
+          throw new Error('Initialization check failed');
+        }
 
         setIsInitialized(data.initialized);
 
@@ -128,6 +132,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     initializeAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setUserDataFromToken = useCallback(
@@ -159,7 +164,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         clearAuth();
       }
     },
-    [navigate, validateToken, clearAuth]
+    [validateToken, clearAuth]
   );
 
   const value = useMemo(
