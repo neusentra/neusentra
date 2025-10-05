@@ -1,10 +1,10 @@
 import type { IUserData, IUserPermissions } from "../common.type";
 
 export interface IAuthContext {
-    userData: IUserData | null;
+    userData?: IUserData | null;
     setUserData: (data: IUserData | null) => void;
-    isInitialized: boolean | null;
-    isAuthenticated: boolean;
+    isInitialized?: boolean | null;
+    isAuthenticated?: boolean;
     setIsAuthenticated: (authenticated: boolean) => void;
     setUserDataFromToken: (
         token: string,

@@ -11,9 +11,9 @@ import { toast } from "sonner";
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [userData, setUserData] = useState<IUserData | null>(null);
-  const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState<IUserData | null>();
+  const [isInitialized, setIsInitialized] = useState<boolean | null>();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const { setPreloader } = usePreloader();
