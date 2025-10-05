@@ -1,12 +1,14 @@
-import { Body, Controller, Get, HttpStatus, Post, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { NeuSentraValidationPipe } from 'src/pipes/neusentra-validation.pipe';
 import { CheckInitializationStatusResponse } from './dto/check-initialization.dto';
 import { InitializeSuperAdminDto, InitializeSuperAdminResponseDto } from './dto/initialize-superadmin.dto';
-import { LoginRequestDto, LoginResponseDto } from './dto/auth.dto';
+import { LoginRequestDto, LoginResponseDto, RefreshTokenResponseDto } from './dto/auth.dto';
 import { GetLoginId } from 'src/decorators/get-token-data.decorator';
 import { NeuSentraAuthGuard } from 'src/guards/auth.guard';
+import { type FastifyReply } from 'fastify';
+import { Cookies } from 'src/decorators/cookies.decorator';
 
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: '1' })
@@ -35,8 +37,9 @@ export class AuthController {
     @UsePipes(new NeuSentraValidationPipe())
     async initialize(
         @Body() body: InitializeSuperAdminDto,
+        @Res() reply: FastifyReply,
     ): Promise<InitializeSuperAdminResponseDto> {
-        return this.authService.initializeSuperAdmin(body);
+        return this.authService.initializeSuperAdmin(body, reply);
     }
 
     @Post('login')
@@ -47,8 +50,25 @@ export class AuthController {
         description: 'User logged in successfully and received tokens',
         type: LoginResponseDto,
     })
-    async login(@Body() body: LoginRequestDto): Promise<LoginResponseDto> {
-        return this.authService.userLogin(body);
+    async login(
+        @Body() body: LoginRequestDto,
+        @Res() reply: FastifyReply
+    ): Promise<LoginResponseDto> {
+        return this.authService.userLogin(body, reply);
+    }
+
+    @Post('refresh-token')
+    @ApiOperation({ summary: 'Refresh access token using refresh token cookie' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Returns a new access token if refresh token is valid',
+        type: RefreshTokenResponseDto,
+    })
+    async refreshToken(
+        @Cookies('refreshToken') token: string,
+        @Res() reply: FastifyReply,
+    ): Promise<void> {
+        await this.authService.refreshAccessToken(token, reply);
     }
     
     @Post('logout')
@@ -59,7 +79,10 @@ export class AuthController {
         status: HttpStatus.OK,
         description: 'User logged out successfully',
     })
-    async logout(@GetLoginId() loginId: string): Promise<void> {
-        return this.authService.logout(loginId);
+    async logout(
+        @GetLoginId() loginId: string,
+        @Res() reply: FastifyReply
+    ): Promise<void> {
+        return this.authService.logout(loginId, reply);
     }
 }
