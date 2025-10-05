@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router';
 import { CommonLayout } from '@/layout/common';
 import { InitializePage } from '@/pages';
+import { HomePage } from '@/pages/home';
 
 const AppRouter: React.FC = () => {
     return (
@@ -12,7 +13,7 @@ const AppRouter: React.FC = () => {
           <Route path="initialize" element={<InitializePage />} />
         </Route>
 
-        <Route path='/' element={<div>Home</div>}></Route>    
+        <Route path='/' element={<HomePage />}></Route>    
       </Routes>
     );
 }
