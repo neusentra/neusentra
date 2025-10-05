@@ -16,3 +16,8 @@ export interface IAuthContext {
 export type AuthProviderProps = {
     children: React.ReactNode;
 };
+
+export interface SetUserDataFromTokenReturn {
+    success: boolean;
+    error: string | null
+}
