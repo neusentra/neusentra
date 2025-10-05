@@ -18,9 +18,9 @@ import { CREATE_SUPERADMIN_QUERY, GET_SUPERADMIN_PERMISSION_QUERY, USER_COUNT_QU
 import { CheckInitializationStatusResponse } from './dto/check-initialization.dto';
 import { InitializeSuperAdminDto, InitializeSuperAdminResponseDto } from './dto/initialize-superadmin.dto';
 import { LOG_USER_LOGIN_QUERY } from './queries/log-user-login.query';
-import { LoginRequestDto, LoginResponseDto, UserInfoDto } from './dto/auth.dto';
+import { LoginRequestDto, LoginResponseDto, RefreshTokenResponseDto, UserInfoDto } from './dto/auth.dto';
 import { FETCH_USER_BY_USERNAME_QUERY } from './queries/user-login.query';
-import { TokenPayload } from 'src/jwt-token/interfaces/token-payload.interface';
+import { FastifyReply } from 'fastify';
 
 @Injectable()
 export class AuthService {
@@ -50,11 +50,11 @@ export class AuthService {
 
         await this.redis.set(
             data.loginId,
-            { accessToken, refreshToken: refreshToken },
+            { accessToken, refreshToken },
             this.config.jwt.refreshExpiry as string | number,
         );
 
-        return { accessToken };
+        return { accessToken, refreshToken };
     }
 
     async checkInitializationStatus(): Promise<CheckInitializationStatusResponse> {
@@ -78,6 +78,7 @@ export class AuthService {
 
     async initializeSuperAdmin(
         dto: InitializeSuperAdminDto,
+        reply: FastifyReply
     ): Promise<InitializeSuperAdminResponseDto> {
         if (this.isBootstrapped()) {
             throw new BadRequestException('System has already been bootstrapped.');
@@ -127,15 +128,18 @@ export class AuthService {
         mkdirSync(dirname(K.SETUP_LOCK_FILE), { recursive: true });
         writeFileSync(K.SETUP_LOCK_FILE, `Bootstrapped at ${new Date().toISOString()}\n`);
 
-        this.sseEmitter.emitToAll('superadmin.created', null);
+        this.sseEmitter.emitToAll('superadmin.created', {
+            initialized: this.isBootstrapped()
+        });
 
-        const { accessToken } = await this.getAuthToken({
+        const { accessToken, refreshToken } = await this.getAuthToken({
             loginId,
             userId,
             name: createdUser[0].fullname,
             role: 'superadmin',
         });
 
+        await this.setRefreshTokenCookie(reply, refreshToken);
 
         return {
             success: true,
@@ -148,7 +152,7 @@ export class AuthService {
         };
     }
 
-    async userLogin(credentials: LoginRequestDto): Promise<LoginResponseDto> { 
+    async userLogin(credentials: LoginRequestDto, reply: FastifyReply): Promise<LoginResponseDto> { 
         const username = credentials.username.trim();
         const password = credentials.password.trim();
 
@@ -179,12 +183,14 @@ export class AuthService {
             IdDto,
         );
 
-        const { accessToken } = await this.getAuthToken({
+        const { accessToken, refreshToken } = await this.getAuthToken({
             loginId: loginRecords[0].id,
             userId: user.id,
             name: user.fullname,
             role: user.role,
         });
+
+        await this.setRefreshTokenCookie(reply, refreshToken);
 
         return {
             success: true,
@@ -197,7 +203,52 @@ export class AuthService {
         };
     }
 
-    async logout(loginId: string): Promise<void> {
+    async refreshAccessToken(
+        token: string,
+        reply: FastifyReply,
+    ): Promise<RefreshTokenResponseDto> {
+        if (!token) {
+            throw new UnauthorizedException('Missing refresh token');
+        }
+
+        try {
+            const payload = await this.jwt.verifyToken(token, this.config.jwt.refreshSecret as string);
+            const cache = await this.redis.get(payload?.loginId);
+            
+            if (cache) {
+                const { accessToken, refreshToken } = await this.jwt.generateTokens(payload);
+                await this.redis.set(payload.loginId, { accessToken, refreshToken }, this.config.redis.ttl as string);
+
+                await this.setRefreshTokenCookie(reply, refreshToken);
+
+                return {
+                    success: true,
+                    statusCode: HttpStatus.OK,
+                    message: 'Token refreshed successfully',
+                    data: {
+                        accessToken,
+                    }
+                }
+            } else {
+                    throw new BadRequestException('Invalid or expired refresh token');
+            }
+        } catch (error) {
+            this.logger.error('Refreshing access token has been failed', error);
+            throw new UnauthorizedException('Refreshing access token has been failed');
+        }
+    }
+
+    private async setRefreshTokenCookie(reply: FastifyReply, token: string) {
+        reply.setCookie('refreshToken', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            path: '/v1/auth/refresh-token',
+            maxAge: +(this.config.jwt.refreshExpiry as string)
+        });
+    }
+
+    async logout(loginId: string, reply: FastifyReply): Promise<void> {
         await this.db.update({
             table: 'user_login',
             set: `logout_at = CURRENT_TIMESTAMP`,
@@ -205,6 +256,11 @@ export class AuthService {
             variables: [loginId],
         }, IdDto);
 
-        return this.redis.del(loginId);
+        await this.redis.del(loginId);
+        await reply.clearCookie('refreshToken', {
+            path: '/v1/auth/refresh-token',
+        });
+
+        return;
     }
 }
