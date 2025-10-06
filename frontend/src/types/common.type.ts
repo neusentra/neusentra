@@ -8,13 +8,17 @@ export interface IUserPermissions {
     canManageScheduledTasks: boolean;
 }
 
+export type Role = 'superadmin' | 'admin' | 'user'
+
+export interface User {
+    loginId: string;
+    userId: string;
+    role: Role;
+}
+
 export interface IUserData {
-    user: {
-        loginId: string;
-        userId: string;
-        role: string;
-    };
-    permissions: IUserPermissions;
+    user?: User | null;
+    permissions?: IUserPermissions | null;
 }
 
 export interface ILoginResponse extends IUserData {

@@ -1,58 +1,19 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
-import type {
-  ILoginResponse,
-  IUserData,
-  IUserPermissions,
-} from "@/types/common.type";
+import type { AuthProviderProps, IAuthContext, ILoginResponse, InitializeData, IUserData, IUserPermissions, SetUserDataFromTokenReturn } from "@/types";
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { axiosInstance, httpService } from "@/services";
 import { API_METHODS } from "@/enums/common.enum";
-import { AUTH_KEY, ENDPOINTS,  } from "@/constants";
+import { AUTH_KEY, ENDPOINTS } from "@/constants";
 import { usePreloader } from "./preloader";
 import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
-import type { InitializeData } from "@/types/api/initialize.type";
 import { toast } from "sonner";
 
-interface IAuthContext {
-  userData: IUserData | null;
-  setUserData: (data: IUserData | null) => void;
-  isInitialized: boolean | null;
-  isAuthenticated: boolean;
-  setIsAuthenticated: (authenticated: boolean) => void;
-  error: Error | null;
-  setUserDataFromToken: (
-    token: string,
-    permissions: IUserPermissions,
-    skipLocalStorage?: boolean
-  ) => void;
-}
-
-type AuthProviderProps = {
-  children: React.ReactNode;
-};
-
-const AuthContext = createContext<IAuthContext>({
-  userData: null,
-  setUserData: () => {},
-  isInitialized: null,
-  isAuthenticated: false,
-  setIsAuthenticated: () => {},
-  error: null,
-  setUserDataFromToken: () => {},
-});
+const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [userData, setUserData] = useState<IUserData | null>(null);
-  const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
+  const [userData, setUserData] = useState<IUserData | null>();
+  const [isInitialized, setIsInitialized] = useState<boolean | null>();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
 
   const navigate = useNavigate();
   const { setPreloader } = usePreloader();
@@ -62,13 +23,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     try {
       const payload = jwtDecode<ILoginResponse>(token);
-
       const isExpired = !payload?.exp || payload.exp < Date.now() / 1000;
-      if (isExpired) return null;
-
-      return payload;
-    } catch (err) {
-      console.error("Token decode error:", err);
+      return isExpired ? null : payload;
+    } catch {
       return null;
     }
   }, []);
@@ -79,112 +36,90 @@ export function AuthProvider({ children }: AuthProviderProps) {
     delete axiosInstance.defaults.headers.common["Authorization"];
     setUserData(null);
     setIsAuthenticated(false);
-  }, [setUserData, setIsAuthenticated]);
-
-  useEffect(() => {
-    const initializeAuth = async () => {
-      setPreloader(true);
-      try {
-        const { data, success } = await httpService<InitializeData>(
-          API_METHODS.GET,
-          ENDPOINTS.AUTH.CHECK_INITIALIZATION
-        );
-
-        if (!success) {
-          toast.error('Initialization check failed')
-          throw new Error('Initialization check failed');
-        }
-
-        setIsInitialized(data.initialized);
-
-
-        if (!data.initialized) { 
-          navigate('/auth/initialize');
-        }
-
-          const token = localStorage.getItem(AUTH_KEY);
-          const permissionsString = localStorage.getItem("permissions");
-
-          if (token && permissionsString) {
-            const payload = validateToken(token);
-
-            if (payload) {
-              const permissions = JSON.parse(permissionsString);
-              setUserData({ user: payload.user, permissions });
-              setIsAuthenticated(true);
-              axiosInstance.defaults.headers.common["Authorization"] =
-                `Bearer ${token}`;
-            } else {
-              clearAuth();
-            }
-          } else {
-            setIsAuthenticated(false);
-          }
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err
-            : new Error("Failed to check initialization")
-        );
-      } finally {
-        setPreloader(false);
-      }
-    };
-
-    initializeAuth();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setUserDataFromToken = useCallback(
-    (
-      token: string,
-      permissions: IUserPermissions,
-      skipLocalStorage = false
-    ) => {
-      try {
-        const payload = validateToken(token);
+  const setUserDataFromToken = useCallback((
+    token: string, permissions: IUserPermissions, skipLocalStorage = false
+  ): SetUserDataFromTokenReturn => {
+    try {
+      const payload = validateToken(token);
 
-        if (!payload) {
-          throw new Error("Token is expired or invalid");
-        }
+      if (!payload) {
+        return { success: false, error: "Invalid Token" };
+      }
 
-        axiosInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${token}`;
+      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-        if (!skipLocalStorage) {
-          localStorage.setItem(AUTH_KEY, token);
-          localStorage.setItem("permissions", JSON.stringify(permissions));
-        }
+      if (!skipLocalStorage) {
+        localStorage.setItem(AUTH_KEY, token);
+        localStorage.setItem("permissions", JSON.stringify(permissions));
+      }
 
+      setUserData({ user: payload.user, permissions });
+      setIsAuthenticated(true);
+
+      return { success: true, error: null };
+    } catch (error) {
+      clearAuth();
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown Error",
+      };
+    }
+  }, [validateToken, clearAuth]);
+
+  const initializeAuth = async () => {
+    setPreloader(true);
+
+    const { data, success, error } = await httpService<InitializeData>(
+      API_METHODS.GET,
+      ENDPOINTS.AUTH.CHECK_INITIALIZATION
+    );
+
+    if (!success && error) {
+      toast.error("Initialization check failed");
+      setPreloader(false);
+      return;
+    }
+
+    setIsInitialized(data?.initialized ?? false);
+
+    if (data && !data.initialized) {
+      navigate("/auth/initialize");
+      setPreloader(false);
+      return;
+    }
+
+    const token = localStorage.getItem(AUTH_KEY);
+    const permissionsString = localStorage.getItem("permissions");
+
+    if (token && permissionsString) {
+      const payload = validateToken(token);
+
+      if (payload) {
+        const permissions = JSON.parse(permissionsString);
         setUserData({ user: payload.user, permissions });
         setIsAuthenticated(true);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error("Invalid token"));
-        console.error('err', err)
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      } else {
         clearAuth();
       }
-    },
-    [validateToken, clearAuth]
-  );
+    }
 
-  const value = useMemo(
-    () => ({
-      userData,
-      setUserData,
-      isInitialized,
-      isAuthenticated,
-      setIsAuthenticated,
-      error,
-      setUserDataFromToken,
-    }),
-    [
-      userData,
-      isInitialized,
-      isAuthenticated,
-      error,
-      setUserDataFromToken,
-    ]
-  );
+    setPreloader(false);
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { initializeAuth() }, []);
+
+  const value = useMemo(() => ({
+    userData,
+    setUserData,
+    isInitialized,
+    isAuthenticated,
+    setIsAuthenticated,
+    setUserDataFromToken,
+  }), [userData, isInitialized, isAuthenticated, setUserDataFromToken]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -193,7 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
 
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
 

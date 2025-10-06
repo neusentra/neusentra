@@ -1,16 +1,19 @@
-import { z } from 'zod';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { IUserPermissions } from '@/types/common.type';
-import { useAuth } from '@/providers';
-import { httpService } from '@/services';
-import { API_METHODS } from '@/enums/common.enum';
-import { ENDPOINTS } from '@/constants/api-routes';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ENDPOINTS } from '@/constants/api-routes';
+import { API_METHODS } from '@/enums/common.enum';
+import { Button } from '@/components/ui/button';
+import type { IUserPermissions } from '@/types';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-    
+import { useForm } from "react-hook-form";
+import { httpService } from '@/services';
+import { useAuth } from '@/providers';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+
 const loginSchema = z
   .object({
     fullname: z
@@ -47,25 +50,29 @@ interface LoginResponse {
 }
 
 export const InitializePage: React.FC = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const { setUserDataFromToken } = useAuth();
+  const { setUserDataFromToken, isAuthenticated, isInitialized } = useAuth();
+  const navigate = useNavigate();
 
-  const onSubmit = async (data: LoginFormData) => {
-    const response = await httpService<LoginResponse>(
+  useEffect(() => {
+    if (isAuthenticated || isInitialized) {
+      navigate('/dashboard')
+    }
+  }, [isAuthenticated, isInitialized, navigate])
+
+  const onSubmit = async (superAdminData: LoginFormData) => {
+    const { data, success, error, message } = await httpService<LoginResponse>(
       API_METHODS.POST,
       ENDPOINTS.AUTH.INITIALIZE,
-      data
+      superAdminData
     );
 
-    const token = response.data.accessToken;
-    setUserDataFromToken(token, response.data.permissions);
+    if (success && data) setUserDataFromToken(data.accessToken, data.permissions);
+
+    if (error) toast.error(message)
   };
 
   return (
