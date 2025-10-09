@@ -25,9 +25,9 @@ export class NeuSentraValidationPipe extends ValidationPipe {
       const result = await super.transform(value, metadata);
 
       if (result) {
-        Object.entries(result).forEach(([key, value]) => {
+        for (const [key, value] of Object.keys(result)) {
           if (value === null || value === undefined) delete result[key];
-        });
+        }
       }
 
       return result;

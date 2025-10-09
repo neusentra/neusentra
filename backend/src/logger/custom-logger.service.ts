@@ -14,7 +14,7 @@ export class CustomLogger extends ConsoleLogger {
   private init() {
     const LOGGER_LEVEL = process.env.LOGGER_LEVEL;
     const loggerLevel: LogLevel[] = ['error', 'warn', 'log', 'debug'];
-    const envLogIndex = loggerLevel.findIndex((i) => i === LOGGER_LEVEL);
+    const envLogIndex = loggerLevel.indexOf(LOGGER_LEVEL as LogLevel);
 
     this.setLogLevels(loggerLevel.slice(0, envLogIndex + 1));
     this.prettyPrintLog = Boolean(
@@ -76,7 +76,7 @@ export class CustomLogger extends ConsoleLogger {
    * Checks whether the print operation is pretty or not.
    * @returns {boolean} Whether the print operation is pretty or not.
    */
-  private isPrettyPrint = (): boolean => this.prettyPrintLog;
+  private readonly isPrettyPrint = (): boolean => this.prettyPrintLog;
 
   /**
    * Method to print a plain message.
