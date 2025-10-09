@@ -1,9 +1,10 @@
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller, Param, Req, Sse } from '@nestjs/common';
-import { SseEmitterService, SseEvent } from './sse.service';
+import { SseEmitterService } from './sse.service';
 import { map, Observable } from 'rxjs';
 import { ServerSentEventDto } from './dto/sse.dto';
 import { SseGateway } from './sse.gateway';
+import { SseEvent } from './interfaces/sse-event.interface';
 
 @ApiTags('Server-Sent Events')
 @Controller({ path: 'events', version: '1' })

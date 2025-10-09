@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
-import { SseEvent } from './sse.service';
 import { Injectable } from '@nestjs/common';
+import { SseEvent } from './interfaces/sse-event.interface';
 import { CustomLogger } from 'src/logger/custom-logger.service';
 
 interface Client<T = any> {
