@@ -6,14 +6,15 @@ import { AuditLogEntry } from './audit-log.type';
 
 describe('AuditLogService', () => {
   let service: AuditLogService;
-  let db: Partial<DatabaseService<any>>;
-  let logger: Partial<CustomLogger>;
+  let dbMock: Partial<DatabaseService<any>>;
+  let loggerMock: Partial<CustomLogger>;
 
   beforeEach(async () => {
-    db = {
+    dbMock = {
       rawQuery: jest.fn(),
     };
-    logger = {
+
+    loggerMock = {
       setContext: jest.fn(),
       log: jest.fn(),
       error: jest.fn(),
@@ -22,53 +23,62 @@ describe('AuditLogService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuditLogService,
-        { provide: DatabaseService, useValue: db },
-        { provide: CustomLogger, useValue: logger },
+        { provide: DatabaseService, useValue: dbMock },
+        { provide: CustomLogger, useValue: loggerMock },
       ],
     }).compile();
 
     service = module.get<AuditLogService>(AuditLogService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should set logger context on initialization', () => {
+    expect(loggerMock.setContext).toHaveBeenCalledWith('AuditLogService');
   });
 
   describe('logAction', () => {
-    const entry: AuditLogEntry = {
-      userId: 'user-1',
-      action: 'TEST_ACTION',
-      entityType: 'TestEntity',
-      entityId: 'entity-1',
-      details: { foo: 'bar' },
+    const sampleEntry: AuditLogEntry = {
+      userId: 'user1',
+      action: 'CREATE',
+      entityType: 'User',
+      entityId: '123',
+      details: { info: 'sample details' },
     };
 
-    it('inserts log and calls logger.log on success', async () => {
-      (db.rawQuery as jest.Mock).mockResolvedValueOnce([]);
-      await service.logAction(entry);
-      expect(db.rawQuery).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO audit_logs'),
+    it('should insert audit log entry successfully and log message', async () => {
+      (dbMock.rawQuery as jest.Mock).mockResolvedValueOnce(undefined);
+
+      await service.logAction(sampleEntry);
+
+      expect(dbMock.rawQuery).toHaveBeenCalledWith(
+        'INSERT INTO neusentra.audit_logs (user_id, action, entity_type, entity_id, details) VALUES ($1, $2, $3, $4, $5)',
         [
-          entry.userId,
-          entry.action,
-          entry.entityType,
-          entry.entityId,
-          entry.details,
+          sampleEntry.userId,
+          sampleEntry.action,
+          sampleEntry.entityType,
+          sampleEntry.entityId,
+          sampleEntry.details,
         ],
         String,
       );
-      expect(logger.log).toHaveBeenCalledWith(
-        `Audit log entry created for user ${entry.userId} action ${entry.action}`,
+      expect(loggerMock.log).toHaveBeenCalledWith(
+        `Audit log entry created for user ${sampleEntry.userId} action ${sampleEntry.action}`,
       );
     });
 
-    it('calls logger.error on failure', async () => {
-      const error = new Error('DB error');
-      (db.rawQuery as jest.Mock).mockRejectedValueOnce(error);
-      await service.logAction(entry);
-      expect(logger.error).toHaveBeenCalledWith(
-        `Failed to create audit log entry for user ${entry.userId} action ${entry.action}`,
+    it('should catch error during insert and log error', async () => {
+      const error = new Error('DB failed');
+      (dbMock.rawQuery as jest.Mock).mockRejectedValueOnce(error);
+
+      await service.logAction(sampleEntry);
+
+      expect(dbMock.rawQuery).toHaveBeenCalled();
+      expect(loggerMock.error).toHaveBeenCalledWith(
+        `Failed to create audit log entry for user ${sampleEntry.userId} action ${sampleEntry.action}`,
         error,
+      );
+      // Should NOT call logger.log on error
+      expect(loggerMock.log).not.toHaveBeenCalledWith(
+        `Audit log entry created for user ${sampleEntry.userId} action ${sampleEntry.action}`,
       );
     });
   });
