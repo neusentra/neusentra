@@ -1,5 +1,4 @@
 import { registerAs } from '@nestjs/config';
-import { UtilsService } from 'src/common/utils/utils.service';
 
 const env = process.env;
 
