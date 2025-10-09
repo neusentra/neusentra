@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { Inject, Injectable, Type } from '@nestjs/common';
 import { CustomLogger } from 'src/logger/custom-logger.service';
 import * as K from './constants/database.constants';
-import { plainToInstance } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { DbExceptionError } from 'src/errors/db-exception.error';
 import {
   DeleteQueryParams,
@@ -39,13 +39,13 @@ export class DatabaseService<T> {
       const result = await this.pool.query(query, values);
       this.logger.log(
         JSON.stringify({
-          query: query.replace(/\n/g, ''),
+          query: query.replaceAll('\n', ''),
           time: Date.now() - start,
           rows: result.rows?.length || 0,
         }),
       );
       if (type) {
-        return plainToInstance(type, result.rows || []) as T[];
+        return plainToClass(type, result.rows || []) as T[];
       }
       return result.rows;
     } catch (err) {
@@ -111,7 +111,7 @@ export class DatabaseService<T> {
    * @param {Type<T>} type Query response DTO.
    * @returns {Promise<T>} Query output.
    */
-  update(params: UpdateQueryParams, type: Type<T>): Promise<T[]> {
+  update(params: UpdateQueryParams, type?: Type<T>): Promise<T[]> {
     const query =
       'UPDATE ' +
       params.table +
@@ -136,6 +136,6 @@ export class DatabaseService<T> {
   }
 
   transaction(command: string): Promise<any> {
-    return this.runQuery(command, undefined);
+    return this.runQuery(command);
   }
 }
