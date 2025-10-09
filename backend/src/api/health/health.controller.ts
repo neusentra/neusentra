@@ -4,7 +4,7 @@ import { SuccessResponseDto } from 'src/common/dto/success-response.dto';
 import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('Health')
-@Controller('status')
+@Controller({ path: 'status', version: '1' })
 export class HealthController {
   @Get()
   @Public()
