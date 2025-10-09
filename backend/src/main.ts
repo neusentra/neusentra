@@ -33,7 +33,7 @@ async function bootstrap() {
   const cookieSecret = config.get<string>('config.cookie.secret');
 
   await app.register(fastifyCookie as any, {
-    secret: cookieSecret
+    secret: cookieSecret,
   });
 
   // CORS configuration
@@ -62,8 +62,9 @@ async function bootstrap() {
   logger.log(`Listening on port ${port}, running in ${env} environment`);
 }
 
-bootstrap().catch((err) => {
-  // Log the error and exit the process
-  logger.error('Bootstrap failed:', err);
+try {
+  void bootstrap();
+} catch (error) {
+  logger.error('Bootstrap failed:', error);
   process.exit(1);
-});
+}
