@@ -50,7 +50,7 @@ function generateDBPool({
             resetOnSuccess: true,
           }),
           catchError((err) => {
-            const message = `${K.DATABASE_CONNECTION} [${connectionName}] ${err}`;
+            logger.error(`${K.DATABASE_CONNECTION} [${connectionName}] ${err}`);
             throw err;
           }),
           tap(() => {
