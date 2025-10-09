@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-import * as crypto from 'crypto';
 import { Injectable } from '@nestjs/common';
 import * as K from 'src/common/constants';
 
@@ -14,7 +13,7 @@ export class UtilsService {
    * @returns {string} Converted string
    */
   toCamel = (str: string): string => {
-    return str.replace(/_([a-z1-3])/g, (word: string) => word[1].toUpperCase());
+    return str.replaceAll(/_([a-z1-3])/g, (word: string) => word[1].toUpperCase());
   };
 
   /**
@@ -22,7 +21,7 @@ export class UtilsService {
    * @param {any} obj Object to be checked
    * @returns {boolean} Whether object or not
    */
-  private isObject = (obj: any[] | any): boolean => {
+  private readonly isObject = (obj: any[] | any): boolean => {
     return (
       obj === Object(obj) &&
       obj instanceof Date === false &&
@@ -40,9 +39,9 @@ export class UtilsService {
     if (this.isObject(obj)) {
       const newObj = {};
 
-      Object.keys(obj).forEach((key) => {
+      for (const key of Object.keys(obj)) {
         newObj[this.toCamel(key)] = this.convertKeysToCamelCase(obj[key]);
-      });
+      }
 
       return newObj;
     } else if (Array.isArray(obj)) {
