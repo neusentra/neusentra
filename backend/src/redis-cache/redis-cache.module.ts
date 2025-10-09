@@ -13,7 +13,9 @@ import { CommonModule } from 'src/common/common.module';
         const store = await redisStore({
           socket: {
             host: configService.get('config.redis.host'),
-            port: parseInt(configService.get('config.redis.port') || '6379'),
+            port: Number.parseInt(
+              configService.get('config.redis.port') || '6379',
+            ),
             tls: false,
           },
           ttl: configService.get('config.redis.ttl'),

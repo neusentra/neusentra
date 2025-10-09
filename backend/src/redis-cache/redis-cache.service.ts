@@ -7,7 +7,7 @@ import { CustomLogger } from 'src/logger/custom-logger.service';
 export class RedisCacheService {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
-    private logger: CustomLogger,
+    private readonly logger: CustomLogger,
   ) {
     this.logger.setContext(RedisCacheService.name);
   }
@@ -37,7 +37,6 @@ export class RedisCacheService {
       this.logger.error(err);
       throw err;
     }
-    return;
   }
 
   async del(key: string) {
@@ -47,6 +46,5 @@ export class RedisCacheService {
       this.logger.error(err);
       throw err;
     }
-    return;
   }
 }
