@@ -69,12 +69,3 @@ export class RefreshTokenResponseDto extends SuccessResponseDto {
   @ApiProperty({ type: () => AccessTokenDto })
   declare data: AccessTokenDto;
 }
-
-class AccessTokenDto {
-    accessToken: string;
-}
-
-export class RefreshTokenResponseDto extends SuccessResponseDto {
-    @ApiProperty({ type: () => AccessTokenDto })
-    declare data: AccessTokenDto;
-}
