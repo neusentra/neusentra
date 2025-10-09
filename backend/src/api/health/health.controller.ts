@@ -6,16 +6,16 @@ import { Public } from 'src/decorators/public.decorator';
 @ApiTags('Health')
 @Controller('status')
 export class HealthController {
-    @Get()
-    @Public()
-    @ApiOperation({ summary: 'Get health of the server' })
-    @ApiResponse({ type: SuccessResponseDto, status: HttpStatus.OK })
-    getStatus(): SuccessResponseDto {
-        return {
-            success: true,
-            statusCode: HttpStatus.OK,
-            message: 'Server is healthy',
-            data: {},
-        };
-    }
+  @Get()
+  @Public()
+  @ApiOperation({ summary: 'Get health of the server' })
+  @ApiResponse({ type: SuccessResponseDto, status: HttpStatus.OK })
+  getStatus(this: void): SuccessResponseDto {
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Server is healthy',
+      data: {},
+    };
+  }
 }
