@@ -13,7 +13,7 @@ interface Client<T = any> {
 
 @Injectable()
 export class SseGateway {
-  private clients: Map<string, Client> = new Map();
+  private readonly clients: Map<string, Client> = new Map();
 
   constructor(private readonly logger: CustomLogger) {
     this.logger.setContext(SseGateway.name);
