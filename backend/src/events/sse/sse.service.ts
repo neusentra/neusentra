@@ -1,17 +1,14 @@
-import { interval, Observable, Subject } from 'rxjs';
-import { Injectable, OnModuleDestroy, Scope } from '@nestjs/common';
+import { interval, Observable, Subject, Subscription } from 'rxjs';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { CustomLogger } from 'src/logger/custom-logger.service';
 import { SseGateway } from './sse.gateway';
 import { SseEventType } from 'src/common/enums/sse-event.enum';
-
-export interface SseEvent<T = unknown> {
-  event: string;
-  data: T;
-}
+import { SseEvent } from './interfaces/sse-event.interface';
 
 @Injectable()
 export class SseEmitterService implements OnModuleDestroy {
   private readonly eventSubject = new Subject<SseEvent>();
+  private readonly pingSubscription: Subscription;
 
   constructor(
     private readonly sseGateway: SseGateway,
@@ -20,7 +17,7 @@ export class SseEmitterService implements OnModuleDestroy {
     this.logger.setContext(SseEmitterService.name);
 
     // Automatic ping to all clients every 30s
-    interval(30_000).subscribe(() => {
+    this.pingSubscription = interval(30_000).subscribe(() => {
       this.emitToAll('ping', { timestamp: new Date().toISOString() });
     });
   }
@@ -71,6 +68,7 @@ export class SseEmitterService implements OnModuleDestroy {
    */
   onModuleDestroy() {
     this.logger.log('Cleaning up SSE stream');
+    this.pingSubscription.unsubscribe();
     this.eventSubject.complete();
   }
 }

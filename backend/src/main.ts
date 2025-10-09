@@ -12,6 +12,7 @@ import { useRequestLogging } from './middlewares/request-logger.middleware';
 import { SuccessResponseInterceptor } from './interceptors/success-response.interceptor';
 import { name, description, version } from 'package.json';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import fastifyCookie from '@fastify/cookie';
 
 const logger = new CustomLogger('Main');
 
@@ -29,6 +30,11 @@ async function bootstrap() {
   const env = config.get<string>('config.server.env');
   const port = config.get<number>('config.server.port') ?? 3333;
   const swaggerEnabled = config.get<string>('config.swagger.enabled');
+  const cookieSecret = config.get<string>('config.cookie.secret');
+
+  await app.register(fastifyCookie as any, {
+    secret: cookieSecret,
+  });
 
   // CORS configuration
   app.enableCors({
@@ -56,8 +62,9 @@ async function bootstrap() {
   logger.log(`Listening on port ${port}, running in ${env} environment`);
 }
 
-bootstrap().catch((err) => {
-  // Log the error and exit the process
-  logger.error('Bootstrap failed:', err);
+try {
+  void bootstrap();
+} catch (error) {
+  logger.error('Bootstrap failed:', error);
   process.exit(1);
-});
+}

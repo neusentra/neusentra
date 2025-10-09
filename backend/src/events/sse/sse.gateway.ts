@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
-import { SseEvent } from './sse.service';
 import { Injectable } from '@nestjs/common';
+import { SseEvent } from './interfaces/sse-event.interface';
 import { CustomLogger } from 'src/logger/custom-logger.service';
 
 interface Client<T = any> {
@@ -13,7 +13,7 @@ interface Client<T = any> {
 
 @Injectable()
 export class SseGateway {
-  private clients: Map<string, Client> = new Map();
+  private readonly clients: Map<string, Client> = new Map();
 
   constructor(private readonly logger: CustomLogger) {
     this.logger.setContext(SseGateway.name);

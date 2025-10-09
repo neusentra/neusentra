@@ -20,7 +20,7 @@ import { JwtTokenModule } from './jwt-token/jwt-token.module';
     ApiModule,
     EventsModule,
     JwtTokenModule,
-    CommonModule
+    CommonModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: HttpExceptionFilter }],
 })

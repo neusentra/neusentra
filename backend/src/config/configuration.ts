@@ -1,5 +1,4 @@
 import { registerAs } from '@nestjs/config';
-import { UtilsService } from 'src/common/utils/utils.service';
 
 const env = process.env;
 
@@ -29,5 +28,8 @@ export default registerAs('config', () => ({
     expiry: env.JWT_EXPIRES_IN,
     refreshSecret: env.JWT_REFRESH_SECRET,
     refreshExpiry: env.JWT_REFRESH_EXPIRES_IN,
+  },
+  cookie: {
+    secret: env.COOKIE_SECRET,
   },
 }));

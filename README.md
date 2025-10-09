@@ -1,3 +1,12 @@
+<div align="center">
+  <a href="https://github.com/neusentra">
+    <img
+      src="https://raw.githubusercontent.com/neusentra/neusentra/main/frontend/public/icons/favicon.svg"
+      alt="NeuSentra"
+      width='128'
+    />
+  </a>
+
 # 🛡️ NeuSentra — Self-Hosted Home Network Guardian
 
 **NeuSentra** is a cutting-edge, self-hosted home network security and management system built around Raspberry Pi.  

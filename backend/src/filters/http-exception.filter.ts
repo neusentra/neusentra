@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ArgumentsHost,
   BadRequestException,
@@ -54,27 +58,26 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse();
     const request = ctx.getRequest();
 
-    let resError: ResError;
-    let msg: string;
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
-        : exception.response?.status || HttpStatus.FORBIDDEN;
+        : (response?.status ?? HttpStatus.FORBIDDEN);
 
-    if (exception.response?.statusCode) {
-      msg = exception.response.message;
-      resError = exception.response;
-    } else if (exception.response?.code) {
-      msg = exception.response.message;
-      resError = exception.response;
-    } else if (exception.response?.data?.statusCode) {
-      msg = exception.response.data.message;
-      resError = exception.response.data;
+    let resError: ResError;
+    let msg: string;
+
+    if (response?.statusCode || response?.code) {
+      msg = response.message;
+      resError = response;
+    } else if (response.data?.statusCode) {
+      msg = response.data.message;
+      resError = response.data;
     } else {
+      const exceptionMessage = exception.message;
       msg =
-        typeof exception.message === 'string'
-          ? exception.message
-          : exception.message.message;
+        typeof exceptionMessage === 'string'
+          ? exceptionMessage
+          : (exceptionMessage?.message ?? 'An unknown error occurred');
       resError = this.getErrorCode(exception);
     }
     resError.success = false;

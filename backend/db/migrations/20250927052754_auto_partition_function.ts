@@ -1,8 +1,7 @@
-import { knex, type Knex } from "knex";
-
+import { type Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-    await knex.raw(`
+  await knex.raw(`
     DO $$
     DECLARE
         start_date DATE := date_trunc('month', now());
@@ -26,22 +25,24 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-    const schema = 'neusentra';
-    const tableNames = ['dns_logs', 'firewall_logs', 'audit_logs'];
-    const now = new Date();
+  const schema = 'neusentra';
+  const tableNames = ['dns_logs', 'firewall_logs', 'audit_logs'];
+  const now = new Date();
 
-    const dropStatements: string[] = [];
+  const dropStatements: string[] = [];
 
-    for (let i = 0; i <= 2; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        const suffix = `${date.getFullYear()}_${String(date.getMonth() + 1).padStart(2, '0')}`;
+  for (let i = 0; i <= 2; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const suffix = `${date.getFullYear()}_${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-        for (const baseTable of tableNames) {
-            const partitionName = `${baseTable}_${suffix}`;
-            dropStatements.push(`DROP TABLE IF EXISTS "${schema}"."${partitionName}" CASCADE`);
-        }
+    for (const baseTable of tableNames) {
+      const partitionName = `${baseTable}_${suffix}`;
+      dropStatements.push(
+        `DROP TABLE IF EXISTS "${schema}"."${partitionName}" CASCADE`,
+      );
     }
+  }
 
-    // Execute all DROP TABLE commands in parallel
-    await Promise.all(dropStatements.map(sql => knex.raw(sql)));
+  // Execute all DROP TABLE commands in parallel
+  await Promise.all(dropStatements.map((sql) => knex.raw(sql)));
 }

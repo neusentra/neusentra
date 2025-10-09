@@ -1,8 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { ConfigType } from '@nestjs/config';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import configuration from 'src/config/configuration';
 import { CustomLogger } from 'src/logger/custom-logger.service';
 import * as K from 'src/common/constants';
 import { RedisCacheService } from 'src/redis-cache/redis-cache.service';
@@ -14,10 +12,8 @@ export class JwtStrategy extends PassportStrategy(
   K.JWT_STRATEGY.DEFAULT,
 ) {
   constructor(
-    @Inject(configuration.KEY)
-    private config: ConfigType<typeof configuration>,
     private readonly logger: CustomLogger,
-    private redisService: RedisCacheService,
+    private readonly redisService: RedisCacheService,
   ) {
     logger.setContext(JwtStrategy.name);
     super({
