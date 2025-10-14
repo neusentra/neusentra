@@ -6,6 +6,7 @@
       width='128'
     />
   </a>
+</div>
 
 # 🛡️ NeuSentra — Self-Hosted Home Network Guardian
 
