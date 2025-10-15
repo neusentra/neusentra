@@ -32,6 +32,7 @@ jobs:
           fi
 
       - name: Run tests
+        if: always()
         run: |
           if [ -f package.json ] && npm run | grep -qE ' test'; then
             echo "Running frontend tests..."
