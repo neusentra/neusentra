@@ -23,7 +23,6 @@ export class HttpClientService {
         this.httpService.get<T>(url, config),
       );
       return data;
-      console.log('test', data);
     } catch (err) {
       this.logger.error(err);
       throw err;
