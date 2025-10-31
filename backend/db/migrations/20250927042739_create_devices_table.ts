@@ -15,7 +15,12 @@ export async function up(knex: Knex): Promise<void> {
         table.string("created_by").notNullable();
         table.string("updated_by").notNullable();
     });
-    await knex.schema.raw(`CREATE INDEX idx_devices_mac ON neusentra.devices (mac_address)`);
+
+    await knex.schema.raw(`
+        CREATE INDEX idx_devices_mac ON neusentra.devices (mac_address);
+        CREATE INDEX idx_users_created_at_id 
+        ON neusentra.users (created_at DESC, id DESC);
+        `);
 }
 
 export async function down(knex: Knex): Promise<void> {
