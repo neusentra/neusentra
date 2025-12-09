@@ -1,1 +1,0 @@
-# NeuSentra Frontend

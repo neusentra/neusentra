@@ -57,25 +57,12 @@ eth1 → [Existing Router (AP Mode)] → Connected Devices
 - **Backend:** NestJS with REST API and SSE for backend logic and real-time updates  
 - **Database:** PostgreSQL (native on Pi, encrypted credentials)  
 - **Communication:** REST + SSE  
-- **Authentication:** JWT or OAuth2, configurable via the UI  
-- **Scripts:** Bash/Python for managing network subsystems (DHCP, firewall, DNS)
+- **Authentication:** JWT or OAuth2, configurable via the UI
 
 _All critical network and security settings — including IP subnets, firewall rules, and device groups — are configurable exclusively via the web dashboard._
 
 ---
 
-## 📁 Project Structure
-
-```
-NeuSentra/
-├── frontend/                  # React + Vite web dashboard UI
-├── backend/                   # NestJS backend API server
-├── scripts/                   # Bash/Python system automation scripts
-├── init.sh                    # One-liner installer script
-└── README.md                  # Project documentation and usage guide
-```
-
----
 
 ## 🔐 Security Highlights
 
@@ -103,12 +90,18 @@ NeuSentra/
 
 ---
 
-## 📦 Deployment Recommendations
+<!-- ## 📦 Deployment Recommendations
 
 1. **Prepare Raspberry Pi with PostgreSQL and Redis installed.**  
 2. **Run installer script to bootstrap system.**  
 4. **Optionally configure reverse proxy and HTTPS with Nginx for secure access.**
 
+
+--- -->
+
+## Resources
+- [NeuSentra Backend](https://github.com/neusentra/neusentra-backend/)
+- [NeuSentra Frontend](https://github.com/neusentra/neusentra-frontend)
 
 ---
 
